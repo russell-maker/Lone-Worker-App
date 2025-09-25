@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lone Worker Safety</title>
+    <!-- Favicon Links - Replace href with your logo's URL -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/dVmVg3Pn/favicon-logo-for-LWSApp.png">
+    <link rel="apple-touch-icon" href="https://https://i.postimg.cc/dVmVg3Pn/favicon-logo-for-LWSApp.png">
+    <!-- End Favicon Links -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: flex; /* Changed to flex for better layout control */
+        }
+        .long-press-btn {
+            /* Prevent text selection and callout menus on hold */
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* Standard syntax */
+            -webkit-touch-callout: none; /* iOS Safari */
+        }
+        .long-press-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            transition: width 2s linear;
+        }
+        .long-press-btn.pressing::after {
+            width: 100%;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .slider-thumb::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        header button svg {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white h-full overflow-hidden">
+
+    <div id="app-container" class="h-full flex flex-col">
+        
+        <!-- Main/Visit Page -->
+        <div id="mainPage" class="page active h-full flex-col p-4 bg-gray-800 animate-fadeIn">
+            <header class="flex justify-between items-center mb-4 relative z-10 flex-shrink-0">
+                <h1 class="text-2xl font-bold text-blue-400">Lone Worker Safety</h1>
+                <div class="flex items-center space-x-1">
+                    <button id="infoBtn" class="p-3 rounded-full hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    </button>
+                    <button id="settingsBtn" class="p-3 rounded-full hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Scrollable Wrapper -->
+            <div class="flex-1 overflow-y-auto min-h-0 -mx-4 px-4">
+                <div class="flex flex-col h-full">
+                    <!-- Location List -->
+                    <div class="bg-gray-900 rounded-lg p-4 mb-4 flex-grow flex flex-col">
+                        <h2 class="text-lg font-semibold mb-2 text-gray-300">Select Location</h2>
+                        <div id="locationList" class="space-y-2 flex-grow overflow-y-auto">
+                            <!-- Locations will be dynamically inserted here -->
+                        </div>
+                        <button id="addLocationBtn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><line x1="12" y1="5" y2="19"></line><line x1="5" y1="12" y2="19"></line></svg>
+                            Add New Location
+                        </button>
+                    </div>
+                    
+                    <!-- Visit Duration -->
+                    <div class="bg-gray-900 rounded-lg p-4 mb-4 flex-shrink-0">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-lg font-semibold text-gray-300">Visit Duration</h2>
+                            <span id="durationDisplay" class="text-xl font-bold text-blue-400">0 mins</span>
+                        </div>
+                        <input id="durationSlider" type="range" min="0" max="15" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    </div>
+        
+                    <!-- Arrived Button -->
+                    <button id="arrivedBtn" disabled class="long-press-btn relative w-full bg-gray-700 text-gray-400 font-bold py-4 px-4 rounded-lg text-xl transition-colors duration-300 flex-shrink-0">
+                        Select Location & Duration
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- On-Site / Locked Screen Page -->
+        <div id="lockedPage" class="page h-full flex-col justify-around items-center p-6 text-center animate-fadeIn">
+            <div>
+                <p class="text-xl text-gray-400">Currently at</p>
+                <h2 id="lockedLocationName" class="text-4xl font-bold mt-2 text-blue-400"></h2>
+            </div>
+
+            <div class="my-8">
+                <p class="text-2xl text-gray-400">Time Remaining</p>
+                <div id="countdownTimer" class="text-7xl font-bold tracking-tighter my-2">00:00:00</div>
+                <p class="text-lg text-gray-400">Anticipated Departure: <span id="lockedAnticipatedTime" class="font-semibold"></span></p>
+            </div>
+            
+            <div id="alertActiveContainer" class="hidden w-full">
+                <div class="bg-red-900/50 border border-red-700 rounded-lg p-4 mb-4">
+                    <h3 class="text-xl font-bold text-red-300">ALERT ACTIVE</h3>
+                    <p class="text-red-400">Automated emails have been sent to your contacts.</p>
+                </div>
+                <button id="iamSafeBtn" class="long-press-btn relative w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-lg text-xl mb-4">
+                    I AM SAFE
+                </button>
+            </div>
+
+            <div id="normalButtonsContainer" class="w-full space-y-4">
+                <button id="extendBtn" class="long-press-btn relative w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg text-xl">
+                    Extend 10 Mins
+                </button>
+                <button id="departBtn" class="long-press-btn relative w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-4 rounded-lg text-xl">
+                    DEPART
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settingsPage" class="page h-full flex-col p-4 bg-gray-800 animate-fadeIn">
+             <header class="flex justify-between items-center mb-6 relative z-10 flex-shrink-0">
+                <h1 class="text-2xl font-bold text-blue-400">Settings</h1>
+                <button id="closeSettingsBtn" class="p-3 rounded-full hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </header>
+            
+            <!-- Scrollable content area -->
+            <div class="flex-1 overflow-y-auto -mx-4 px-4 min-h-0">
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label for="workerName" class="block text-sm font-medium text-gray-400">Your Name</label>
+                        <input type="text" id="workerName" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="workerPhone" class="block text-sm font-medium text-gray-400">Your Phone Number</label>
+                        <input type="tel" id="workerPhone" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="emergencyName" class="block text-sm font-medium text-gray-400">Emergency Contact Name</label>
+                        <input type="text" id="emergencyName" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="emergencyPhone" class="block text-sm font-medium text-gray-400">Emergency Contact Phone</label>
+                        <input type="tel" id="emergencyPhone" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="emergencyEmail" class="block text-sm font-medium text-gray-400">Emergency Contact Email</label>
+                        <input type="email" id="emergencyEmail" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="escalationName" class="block text-sm font-medium text-gray-400">Escalation Contact Name</label>
+                        <input type="text" id="escalationName" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="escalationPhone" class="block text-sm font-medium text-gray-400">Escalation Contact Phone</label>
+                        <input type="tel" id="escalationPhone" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="escalationEmail" class="block text-sm font-medium text-gray-400">Escalation Contact Email</label>
+                        <input type="email" id="escalationEmail" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="pinCode" class="block text-sm font-medium text-gray-400">4-Digit PIN (for secure actions)</label>
+                        <input type="password" id="pinCode" pattern="[0-9]*" inputmode="numeric" maxlength="4" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="googleSheetUrl" class="block text-sm font-medium text-gray-400">Google Sheet Web App URL</label>
+                        <input type="url" id="googleSheetUrl" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 flex-shrink-0">
+                <button id="saveSettingsBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Save Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="modalBackdrop" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4 z-50">
+        
+        <!-- Add/Edit Location Modal -->
+        <div id="locationModal" class="hidden bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 animate-fadeIn">
+            <h2 id="locationModalTitle" class="text-xl font-bold mb-4">Add New Location</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="locationName" class="block text-sm font-medium text-gray-400">Location Name</label>
+                    <input type="text" id="locationName" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="locationAddress" class="block text-sm font-medium text-gray-400">Location Address</label>
+                    <input type="text" id="locationAddress" class="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <button id="useCurrentLocationBtn" class="mt-2 text-sm text-blue-400 hover:text-blue-300">Use Current Location</button>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="deleteLocationBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg hidden">Delete</button>
+                <button id="cancelLocationBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button id="saveLocationBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Save</button>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="infoModal" class="hidden bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6 animate-fadeIn max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold mb-4">How to Use This App</h2>
+            <div class="text-gray-300 space-y-4">
+                <p>This app logs visits to a central Google Sheet. The sheet itself is responsible for sending automated email alerts if a worker is overdue.</p>
+                
+                <div>
+                    <h3 class="font-semibold text-lg text-blue-400">1. Google Sheet Setup</h3>
+                    <p>Create a new Google Sheet. Add these exact headers in the first row:</p>
+                    <p class="bg-gray-900 text-sm p-2 rounded-md mt-2">`Date`, `LocationName`, `LocationAddress`, `ArrivalTime`, `ActualDepartureTime`, `AnticipatedDepartureTime`, `AlarmStatus`, `WorkerName`, `WorkerPhoneNumber`, `EmergencyContactName`, `EmergencyContactNumber`, `EmergencyContactEmail`, `EscalationContactName`, `EscalationContactNumber`, `EscalationContactEmail`, `LastKnownGPS`, `GPSTimestamp`, `Notes`</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-lg text-blue-400">2. Apps Script Setup</h3>
+                    <ol class="list-decimal list-inside space-y-2 mt-2 pl-4">
+                        <li>In your Sheet, go to `Extensions > Apps Script`. Delete any existing code.</li>
+                        <li>Paste the entire code block provided below into the editor.</li>
+                        <li>Click the "Save project" icon.</li>
+                        <li>Click "Deploy" > "New deployment". Choose "Web app" as the type.</li>
+                        <li>Set "Who has access" to "Anyone". This is required.</li>
+                        <li>Click "Deploy", authorize the script, and copy the **Web app URL**.</li>
+                        <li>Paste this URL into this app's Settings page.</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-lg text-blue-400">3. Activate Email Trigger (Crucial Step)</h3>
+                     <ol class="list-decimal list-inside space-y-2 mt-2 pl-4">
+                        <li>Go back to the Apps Script editor.</li>
+                        <li>Near the top of the editor, find the dropdown menu that says "doPost" or "Select function". Click it and choose **"setupTrigger"**.</li>
+                        <li>Click the **"Run"** button next to it.</li>
+                        <li>A dialog will ask for authorization again. This is to allow the script to run automatically and send emails. Complete the authorization steps.</li>
+                        <li>That's it! The script will now check for overdue workers every 15 minutes.</li>
+                    </ol>
+                </div>
+
+                <div class="mt-4">
+                    <h3 class="font-semibold text-lg text-blue-400">Google Apps Script Code:</h3>
+                    <pre class="bg-gray-900 text-sm text-yellow-300 p-3 rounded-md overflow-x-auto"><code>// 1. This function handles data sent from the mobile app.
+function doPost(e) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    const data = JSON.parse(e.postData.contents);
+    
+    const lastRow = sheet.getLastRow();
+    const arrivalTimes = sheet.getRange(2, 4, lastRow > 1 ? lastRow - 1 : 1, 1).getValues();
+    const workerNames = sheet.getRange(2, 8, lastRow > 1 ? lastRow - 1 : 1, 1).getValues();
+    
+    let rowToUpdate = -1;
+    for (let i = arrivalTimes.length - 1; i >= 0; i--) {
+      if (arrivalTimes[i][0] == data.ArrivalTime && workerNames[i][0] == data.WorkerName) {
+        rowToUpdate = i + 2;
+        break;
+      }
+    }
+
+    if (rowToUpdate !== -1) {
+      // Update existing row
+      const range = sheet.getRange(rowToUpdate, 1, 1, 18);
+      const currentValues = range.getValues()[0];
+      
+      const isClearingAlert = (data.AlarmStatus === 'DEPARTED' || data.AlarmStatus === 'SAFE - MANUALLY CLEARED');
+      const wasInAlert = ["ALERT SENT", "EMAIL_1_SENT", "EMAIL_2_SENT", "EMAIL_3_SENT", "ESCALATION_SENT"].includes(currentValues[6]);
+
+      if (isClearingAlert && wasInAlert) {
+          const workerName = currentValues[7];
+          const locationName = currentValues[1];
+          const departureTime = new Date(data.ActualDepartureTime).toLocaleString();
+          const recipient = currentValues[11]; // Emergency Contact Email
+          if (recipient) {
+              const subject = `ALL CLEAR: Lone Worker ${workerName} is Safe`;
+              const body = `This is an automated message to confirm that worker ${workerName} has now safely departed from "${locationName}" at ${departureTime}.\n\nNo further action is required.`;
+              MailApp.sendEmail(recipient, subject, body);
+          }
+      }
+
+      const newValues = [
+        data.Date || currentValues[0], data.LocationName || currentValues[1], data.LocationAddress || currentValues[2],
+        data.ArrivalTime || currentValues[3], data.ActualDepartureTime || currentValues[4], data.AnticipatedDepartureTime || currentValues[5],
+        data.AlarmStatus || currentValues[6], data.WorkerName || currentValues[7], data.WorkerPhoneNumber || currentValues[8],
+        data.EmergencyContactName || currentValues[9], data.EmergencyContactNumber || currentValues[10], data.EmergencyContactEmail || currentValues[11],
+        data.EscalationContactName || currentValues[12], data.EscalationContactNumber || currentValues[13], data.EscalationContactEmail || currentValues[14],
+        data.LastKnownGPS || currentValues[15], data.GPSTimestamp || currentValues[16],
+        data.Notes ? (currentValues[17] ? currentValues[17] + '; ' + data.Notes : data.Notes) : currentValues[17]
+      ];
+      range.setValues([newValues]);
+    } else {
+      // Append new row
+      sheet.appendRow([
+        data.Date, data.LocationName, data.LocationAddress, data.ArrivalTime, "", data.AnticipatedDepartureTime,
+        data.AlarmStatus, data.WorkerName, data.WorkerPhoneNumber, data.EmergencyContactName, data.EmergencyContactNumber,
+        data.EmergencyContactEmail, data.EscalationContactName, data.EscalationContactNumber, data.EscalationContactEmail, 
+        "", "", ""
+      ]);
+    }
+    return ContentService.createTextOutput(JSON.stringify({ "status": "success" })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ "status": "error", "message": error.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// 2. This function sets up the automated trigger. Run this once manually.
+function setupTrigger() {
+  ScriptApp.getProjectTriggers().forEach(trigger => ScriptApp.deleteTrigger(trigger));
+  ScriptApp.newTrigger('checkOverdueWorkers')
+      .timeBased()
+      .everyMinutes(15)
+      .create();
+  SpreadsheetApp.getUi().alert('Trigger created successfully! The sheet will now check for overdue workers every 15 minutes.');
+}
+
+// 3. This function runs automatically to check for overdue workers and send emails.
+function checkOverdueWorkers() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  const dataRange = sheet.getDataRange();
+  const values = dataRange.getValues();
+  const now = new Date();
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    const status = row[6]; // Column G: AlarmStatus
+    
+    const activeStatuses = ["ON SITE", "ALERT SENT", "EMAIL_1_SENT", "EMAIL_2_SENT", "EMAIL_3_SENT"];
+    if (activeStatuses.includes(status)) {
+      const anticipatedDepartureTime = new Date(row[5]);
+      const overdueMinutes = (now.getTime() - anticipatedDepartureTime.getTime()) / 60000;
+      
+      const workerName = row[7];
+      const locationName = row[1];
+      const locationAddress = row[2];
+      const workerPhone = row[8];
+      const lastKnownGPS = row[15];
+      const gpsTimestamp = row[16] ? new Date(row[16]) : null;
+
+      let locationInfo;
+      if (lastKnownGPS && gpsTimestamp) {
+          locationInfo = `Last known GPS location (at ${gpsTimestamp.toLocaleString()}): https://www.google.com/maps?q=${lastKnownGPS}`;
+      } else {
+          locationInfo = `Location at arrival: https://www.google.com/maps?q=${encodeURIComponent(locationAddress)}`;
+      }
+
+      const emailBody = 
+          `Worker: ${workerName} is visiting "${locationName}" and is now overdue.
+          Expected departure was: ${anticipatedDepartureTime.toLocaleString()}
+          Please call ${workerName} on ${workerPhone} to check their status.
+          ${locationInfo}`;
+      
+      let recipient, subject, newStatus;
+
+      if (overdueMinutes >= 60 && status === "EMAIL_3_SENT") {
+        recipient = row[14]; // Escalation Email
+        subject = `ESCALATION: Lone Worker ${workerName} is 60+ minutes overdue`;
+        newStatus = "ESCALATION_SENT";
+      } else if (overdueMinutes >= 45 && status === "EMAIL_2_SENT") {
+        recipient = row[11]; // Emergency Email
+        subject = `FINAL NOTICE: Lone Worker ${workerName} is 45+ minutes overdue`;
+        newStatus = "EMAIL_3_SENT";
+      } else if (overdueMinutes >= 30 && status === "EMAIL_1_SENT") {
+        recipient = row[11]; // Emergency Email
+        subject = `ALERT: Lone Worker ${workerName} is 30+ minutes overdue`;
+        newStatus = "EMAIL_2_SENT";
+      } else if (overdueMinutes >= 15 && (status === "ON SITE" || status === "ALERT SENT")) {
+        recipient = row[11]; // Emergency Email
+        subject = `ALERT: Lone Worker ${workerName} is 15+ minutes overdue`;
+        newStatus = "EMAIL_1_SENT";
+      }
+      
+      if (recipient && newStatus) {
+        MailApp.sendEmail(recipient, subject, emailBody);
+        sheet.getRange(i + 1, 7).setValue(newStatus);
+      }
+    }
+  }
+}
+</code></pre>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="closeInfoBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Close</button>
+            </div>
+        </div>
+        
+        <!-- PIN Modal -->
+        <div id="pinModal" class="hidden bg-gray-800 rounded-lg shadow-xl w-full max-w-xs p-6 animate-fadeIn text-center">
+             <h2 id="pinModalTitle" class="text-xl font-bold mb-4">Enter PIN</h2>
+             <p id="pinModalPrompt" class="text-gray-400 mb-4">Please enter your 4-digit PIN to proceed.</p>
+             <input type="password" id="pinInput" maxlength="4" class="text-center text-3xl tracking-[1em] w-48 mx-auto bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500" inputmode="numeric">
+             <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancelPinBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button id="confirmPinBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Confirm</button>
+             </div>
+        </div>
+
+        <!-- Custom Alert Modal -->
+        <div id="alertModal" class="hidden bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 animate-fadeIn text-center">
+            <h2 id="alertModalTitle" class="text-xl font-bold mb-2">Alert</h2>
+            <p id="alertModalMessage" class="text-gray-300 mb-6"></p>
+            <button id="alertModalOkBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg w-24">OK</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const pages = {
+            main: document.getElementById('mainPage'),
+            locked: document.getElementById('lockedPage'),
+            settings: document.getElementById('settingsPage'),
+        };
+        const modals = {
+            backdrop: document.getElementById('modalBackdrop'),
+            location: document.getElementById('locationModal'),
+            info: document.getElementById('infoModal'),
+            pin: document.getElementById('pinModal'),
+            alert: document.getElementById('alertModal'),
+        };
+        const locationList = document.getElementById('locationList');
+        const arrivedBtn = document.getElementById('arrivedBtn');
+        const durationSlider = document.getElementById('durationSlider');
+        const durationDisplay = document.getElementById('durationDisplay');
+        
+        // --- App State ---
+        let state = {
+            settings: {
+                workerName: '', workerPhone: '',
+                emergencyName: '', emergencyPhone: '', emergencyEmail: '',
+                escalationName: '', escalationPhone: '', escalationEmail: '',
+                pinCode: '', googleSheetUrl: ''
+            },
+            locations: [],
+            selectedLocationId: null,
+            visitDurationMinutes: 0,
+            activeVisit: null, // { locationId, startTime, anticipatedDepartureTime, arrivalTimeForSheet, alertState, preWarningSent, lastGpsAttemptTime }
+        };
+
+        // --- Constants ---
+        const DURATION_STEPS = [0, 10, 15, 20, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300]; // in minutes
+
+        // --- Audio & Haptic Feedback ---
+        let synth;
+        
+        async function initAudio() {
+            if (synth || Tone.context.state === 'running') return;
+            try {
+                await Tone.start();
+                synth = new Tone.Synth().toDestination();
+                console.log("Audio context started");
+            } catch (e) {
+                console.error("Could not start audio context:", e);
+            }
+        }
+
+        async function playSoundAndVibrate(action) {
+            await initAudio(); // Ensure audio context is running
+            if (!synth) {
+                // Fallback to just vibrate if synth fails to init
+                if ('vibrate' in navigator) navigator.vibrate(50);
+                return;
+            }
+            
+            const now = Tone.now();
+            switch(action) {
+                case 'arrive':
+                    synth.triggerAttackRelease("C4", "8n", now);
+                    synth.triggerAttackRelease("G4", "8n", now + 0.2);
+                    if ('vibrate' in navigator) navigator.vibrate(50);
+                    break;
+                case 'depart':
+                    synth.triggerAttackRelease("G4", "8n", now);
+                    synth.triggerAttackRelease("C4", "8n", now + 0.2);
+                    if ('vibrate' in navigator) navigator.vibrate(50);
+                    break;
+                case 'extend':
+                    synth.triggerAttackRelease("A4", "16n", now);
+                    if ('vibrate' in navigator) navigator.vibrate(50);
+                    break;
+                case 'safe':
+                    synth.triggerAttackRelease("C5", "8n", now);
+                    if ('vibrate' in navigator) navigator.vibrate([50, 50, 50]);
+                    break;
+                case 'warning':
+                    synth.triggerAttackRelease("E5", "16n", now);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.2);
+                     if ('vibrate' in navigator) navigator.vibrate([600, 150, 600, 150, 600]); 
+                    break;
+            }
+        }
+
+
+        // --- Core Functions ---
+        
+        function navigate(page) {
+            Object.values(pages).forEach(p => {
+                p.classList.remove('active');
+                p.classList.add('hidden'); // Use hidden to ensure layout is cleared
+            });
+            if (pages[page]) {
+                pages[page].classList.remove('hidden');
+                pages[page].classList.add('active');
+            }
+        }
+        
+        function showModal(modal, onShow) {
+            modals.backdrop.classList.remove('hidden');
+            modals.backdrop.classList.add('flex'); // use flex for centering
+            Object.values(modals).forEach(m => {
+                if(m !== modals.backdrop) m.classList.add('hidden');
+            });
+            if(modals[modal]) {
+                modals[modal].classList.remove('hidden');
+                if(onShow) onShow();
+            }
+        }
+
+        function hideModals() {
+            modals.backdrop.classList.add('hidden');
+            modals.backdrop.classList.remove('flex');
+        }
+
+        function showAlert(title, message) {
+            document.getElementById('alertModalTitle').textContent = title;
+            document.getElementById('alertModalMessage').textContent = message;
+            showModal('alert');
+        }
+
+        function loadState() {
+            const savedState = JSON.parse(localStorage.getItem('loneWorkerState'));
+            if (savedState) {
+                // Merge saved settings with default to avoid errors if new settings are added
+                const mergedSettings = { ...state.settings, ...savedState.settings };
+                state = { ...state, ...savedState, settings: mergedSettings };
+
+                if (state.activeVisit) {
+                    state.activeVisit.startTime = new Date(state.activeVisit.startTime);
+                    state.activeVisit.anticipatedDepartureTime = new Date(state.activeVisit.anticipatedDepartureTime);
+                }
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('loneWorkerState', JSON.stringify(state));
+        }
+
+        function renderLocations() {
+            locationList.innerHTML = '';
+            if (state.locations.length === 0) {
+                locationList.innerHTML = `<p class="text-gray-500 text-center">No locations added yet.</p>`;
+            }
+            state.locations.sort((a,b) => a.name.localeCompare(b.name)).forEach(loc => {
+                const isSelected = loc.id === state.selectedLocationId;
+                const locationEl = document.createElement('div');
+                locationEl.className = `p-3 rounded-lg cursor-pointer border-2 ${isSelected ? 'bg-blue-900/50 border-blue-500' : 'bg-gray-800 border-transparent hover:border-gray-600'}`;
+                locationEl.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold">${loc.name}</p>
+                            <p class="text-sm text-gray-400">${loc.address}</p>
+                        </div>
+                        <button class="edit-location-btn p-2 rounded-full hover:bg-gray-700" data-id="${loc.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                        </button>
+                    </div>
+                `;
+                locationEl.addEventListener('click', () => {
+                    state.selectedLocationId = loc.id;
+                    renderLocations();
+                    updateArrivedButtonState();
+                });
+                locationList.appendChild(locationEl);
+            });
+        }
+        
+        function formatDuration(minutes) {
+            if (minutes < 60) return `${minutes} mins`;
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h${mins > 0 ? ` ${mins}m` : ''}`;
+        }
+
+        function updateArrivedButtonState() {
+            if (state.selectedLocationId && state.visitDurationMinutes > 0) {
+                arrivedBtn.disabled = false;
+                arrivedBtn.classList.remove('bg-gray-700', 'text-gray-400');
+                arrivedBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'text-white');
+                arrivedBtn.textContent = 'ARRIVE (Hold 2s)';
+            } else {
+                arrivedBtn.disabled = true;
+                arrivedBtn.classList.add('bg-gray-700', 'text-gray-400');
+                arrivedBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'text-white');
+                if (!state.selectedLocationId) {
+                    arrivedBtn.textContent = 'Select Location';
+                } else {
+                    arrivedBtn.textContent = 'Set Duration';
+                }
+            }
+        }
+
+        async function sendToGoogleSheet(data) {
+            if (!state.settings.googleSheetUrl) {
+                console.error("Google Sheet URL is not set.");
+                showAlert("Error", "Google Sheet URL is not configured in settings. Data was not saved.");
+                return;
+            }
+
+            const payload = {
+                ...data,
+                WorkerName: state.settings.workerName,
+                WorkerPhoneNumber: state.settings.workerPhone,
+                EmergencyContactName: state.settings.emergencyName,
+                EmergencyContactNumber: state.settings.emergencyPhone,
+                EmergencyContactEmail: state.settings.emergencyEmail,
+                EscalationContactName: state.settings.escalationName,
+                EscalationContactNumber: state.settings.escalationPhone,
+                EscalationContactEmail: state.settings.escalationEmail,
+            };
+            
+            try {
+                const response = await fetch(state.settings.googleSheetUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                console.log('Data sent to Google Sheet.');
+            } catch (error) {
+                console.error('Error sending data to Google Sheet:', error);
+                showAlert("Network Error", "Failed to send data to Google Sheet. Please check your connection.");
+            }
+        }
+
+        function withPinVerification(callback) {
+            if (!state.settings.pinCode) {
+                showAlert("PIN Not Set", "Please set a 4-digit PIN in settings for secure actions.");
+                return;
+            }
+            showModal('pin');
+            
+            const confirmHandler = () => {
+                const pinInput = document.getElementById('pinInput');
+                if (pinInput.value === state.settings.pinCode) {
+                    hideModals();
+                    pinInput.value = '';
+                    callback();
+                } else {
+                    showAlert("Incorrect PIN", "The PIN you entered is incorrect.");
+                    pinInput.value = '';
+                }
+                cleanup();
+            };
+            
+            const cancelHandler = () => {
+                document.getElementById('pinInput').value = '';
+                hideModals();
+                cleanup();
+            };
+
+            const cleanup = () => {
+                document.getElementById('confirmPinBtn').removeEventListener('click', confirmHandler);
+                document.getElementById('cancelPinBtn').removeEventListener('click', cancelHandler);
+            };
+
+            document.getElementById('confirmPinBtn').addEventListener('click', confirmHandler);
+            document.getElementById('cancelPinBtn').addEventListener('click', cancelHandler);
+        }
+
+        // --- Visit Lifecycle ---
+        let visitInterval;
+
+        function handleArriveLongPress() {
+            playSoundAndVibrate('arrive');
+            attemptStartVisit();
+        }
+        
+        function handleDepartLongPress() {
+             playSoundAndVibrate('depart');
+             depart();
+        }
+
+        function handleExtendLongPress() {
+            withPinVerification(() => {
+                playSoundAndVibrate('extend');
+                extendVisit();
+            });
+        }
+        
+        function handleSafeLongPress() {
+             withPinVerification(iamSafe);
+        }
+
+        function attemptStartVisit() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        console.log("GPS permission seems to be granted.");
+                        executeStartVisit();
+                    },
+                    (error) => {
+                        console.error("Initial GPS check failed:", error.message);
+                        showAlert("GPS Not Available", "Could not access location. Overdue alerts will use the manually entered address. Please check location settings.");
+                        executeStartVisit();
+                    },
+                    { timeout: 20000, enableHighAccuracy: true }
+                );
+            } else {
+                showAlert("GPS Not Supported", "Geolocation is not supported by your browser.");
+                executeStartVisit();
+            }
+        }
+
+        async function executeStartVisit() {
+            if (!navigator.onLine) {
+                showAlert("No Network", "A network connection is required to start a visit.");
+                return;
+            }
+            
+            if (navigator.getBattery) {
+                const battery = await navigator.getBattery();
+                if (battery.level < 0.20 && !battery.charging) {
+                     showAlert("Low Battery", `Battery is at ${Math.floor(battery.level * 100)}%. It may not last for the duration of this visit.`);
+                }
+            }
+
+            const location = state.locations.find(l => l.id === state.selectedLocationId);
+            const now = new Date();
+            const anticipatedDepartureTime = new Date(now.getTime() + state.visitDurationMinutes * 60 * 1000);
+            
+            state.activeVisit = {
+                locationId: location.id,
+                startTime: now,
+                anticipatedDepartureTime: anticipatedDepartureTime,
+                arrivalTimeForSheet: now.toISOString(),
+                alertState: 0, 
+                preWarningSent: false,
+                lastGpsAttemptTime: null,
+            };
+
+            saveState();
+            
+            sendToGoogleSheet({
+                Date: now.toLocaleDateString(),
+                LocationName: location.name,
+                LocationAddress: location.address,
+                ArrivalTime: state.activeVisit.arrivalTimeForSheet,
+                AnticipatedDepartureTime: anticipatedDepartureTime.toISOString(),
+                AlarmStatus: 'ON SITE',
+            });
+
+            enterLockedScreen();
+        }
+
+        function enterLockedScreen() {
+            const location = state.locations.find(l => l.id === state.activeVisit.locationId);
+            document.getElementById('lockedLocationName').textContent = location.name;
+            updateLockedScreen();
+            navigate('locked');
+            visitInterval = setInterval(tick, 1000);
+        }
+
+        function updateLockedScreen() {
+            const now = new Date();
+            const remaining = state.activeVisit.anticipatedDepartureTime.getTime() - now.getTime();
+            
+            if (remaining > 0) {
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                document.getElementById('countdownTimer').textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                document.getElementById('countdownTimer').classList.remove('text-red-500');
+
+            } else {
+                const overdue = now.getTime() - state.activeVisit.anticipatedDepartureTime.getTime();
+                const hours = Math.floor(overdue / (1000 * 60 * 60));
+                const minutes = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((overdue % (1000 * 60)) / 1000);
+                document.getElementById('countdownTimer').textContent = `+${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                document.getElementById('countdownTimer').classList.add('text-red-500');
+            }
+            
+            document.getElementById('lockedAnticipatedTime').textContent = state.activeVisit.anticipatedDepartureTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
+        }
+
+        function depart() {
+            const now = new Date();
+            sendToGoogleSheet({
+                ArrivalTime: state.activeVisit.arrivalTimeForSheet,
+                ActualDepartureTime: now.toISOString(),
+                AlarmStatus: 'DEPARTED',
+            });
+            endVisit();
+        }
+
+        function extendVisit() {
+            state.activeVisit.anticipatedDepartureTime = new Date(state.activeVisit.anticipatedDepartureTime.getTime() + 10 * 60 * 1000);
+            state.activeVisit.preWarningSent = false; // Reset pre-warning
+            saveState();
+            sendToGoogleSheet({
+                ArrivalTime: state.activeVisit.arrivalTimeForSheet,
+                AnticipatedDepartureTime: state.activeVisit.anticipatedDepartureTime.toISOString(),
+                Notes: `Extended 10 mins at ${new Date().toLocaleTimeString()}`,
+            });
+            updateLockedScreen();
+        }
+
+        function iamSafe() {
+            playSoundAndVibrate('safe');
+            const now = new Date();
+             sendToGoogleSheet({
+                ArrivalTime: state.activeVisit.arrivalTimeForSheet,
+                ActualDepartureTime: now.toISOString(),
+                AlarmStatus: 'SAFE - MANUALLY CLEARED',
+                Notes: 'Worker confirmed they are safe after an alert was triggered.'
+            });
+            
+            showAlert("Confirmation", "Your status has been updated to SAFE. Your contacts will not receive further alerts for this visit.");
+            
+            endVisit();
+        }
+
+        function endVisit() {
+            clearInterval(visitInterval);
+            state.activeVisit = null;
+            state.selectedLocationId = null;
+            state.visitDurationMinutes = 0;
+            durationSlider.value = 0;
+            durationDisplay.textContent = formatDuration(0);
+            saveState();
+            navigate('main');
+            renderLocations();
+            updateArrivedButtonState();
+            document.getElementById('alertActiveContainer').classList.add('hidden');
+            document.getElementById('normalButtonsContainer').classList.remove('hidden');
+        }
+        
+        function tryGetGps() {
+            state.activeVisit.lastGpsAttemptTime = new Date().getTime();
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    sendToGoogleSheet({
+                        ArrivalTime: state.activeVisit.arrivalTimeForSheet,
+                        LastKnownGPS: `${latitude},${longitude}`,
+                        GPSTimestamp: new Date().toISOString(),
+                        Notes: `Successfully retrieved GPS while overdue.`
+                    });
+                },
+                (error) => {
+                    console.error("GPS Error:", error);
+                    sendToGoogleSheet({
+                        ArrivalTime: state.activeVisit.arrivalTimeForSheet,
+                        Notes: `Failed to retrieve GPS while overdue.`
+                    });
+                },
+                { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+            );
+        }
+
+        function tick() {
+            if (!state.activeVisit) {
+                clearInterval(visitInterval);
+                return;
+            }
+            updateLockedScreen();
+            
+            const now = new Date().getTime();
+            const departureTime = state.activeVisit.anticipatedDepartureTime.getTime();
+            
+            const remainingMinutes = (departureTime - now) / (1000 * 60);
+
+            // Pre-departure warning at 2 minutes remaining
+            if (remainingMinutes <= 2 && remainingMinutes > 0 && !state.activeVisit.preWarningSent) {
+                state.activeVisit.preWarningSent = true;
+                playSoundAndVibrate('warning');
+            }
+            
+            const overdueMinutes = (now - departureTime) / (1000 * 60);
+            
+            // App-side alert logic
+            if (overdueMinutes > 0) {
+                 // Initial GPS check at 13 minutes
+                if (overdueMinutes >= 13 && state.activeVisit.alertState < 1.5) {
+                    state.activeVisit.alertState = 1.5;
+                    tryGetGps();
+                }
+                // Recurring GPS check every 20 minutes after the first one
+                if (state.activeVisit.lastGpsAttemptTime && (now - state.activeVisit.lastGpsAttemptTime) > 20 * 60 * 1000) {
+                    tryGetGps();
+                }
+                // Trigger alert status change at 15 mins
+                if (overdueMinutes >= 15 && state.activeVisit.alertState < 2) {
+                    state.activeVisit.alertState = 2;
+                    sendToGoogleSheet({ ArrivalTime: state.activeVisit.arrivalTimeForSheet, AlarmStatus: 'ALERT SENT' });
+                    document.getElementById('alertActiveContainer').classList.remove('hidden');
+                    document.getElementById('normalButtonsContainer').classList.add('hidden');
+                }
+            }
+            
+            saveState();
+        }
+
+        // --- Event Listeners ---
+        function initEventListeners() {
+            // A single 'pointerdown' event to initialize audio context on user interaction
+            document.body.addEventListener('pointerdown', initAudio, { once: true });
+
+            // Navigation
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                Object.keys(state.settings).forEach(key => {
+                    const input = document.getElementById(key);
+                    if (input) input.value = state.settings[key];
+                });
+                navigate('settings');
+            });
+            document.getElementById('closeSettingsBtn').addEventListener('click', () => navigate('main'));
+
+            // Info Modal
+            document.getElementById('infoBtn').addEventListener('click', () => showModal('info'));
+            document.getElementById('closeInfoBtn').addEventListener('click', hideModals);
+            
+            // Alert Modal
+            document.getElementById('alertModalOkBtn').addEventListener('click', hideModals);
+
+            // Settings Page
+            document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+                Object.keys(state.settings).forEach(key => {
+                    const input = document.getElementById(key);
+                    if (input) state.settings[key] = input.value;
+                });
+                saveState();
+                showAlert("Success", "Settings have been saved.");
+                navigate('main');
+            });
+            
+            // Location Modal
+            document.getElementById('addLocationBtn').addEventListener('click', () => {
+                document.getElementById('locationModalTitle').textContent = 'Add New Location';
+                document.getElementById('locationName').value = '';
+                document.getElementById('locationAddress').value = '';
+                document.getElementById('deleteLocationBtn').classList.add('hidden');
+                document.querySelector('#saveLocationBtn').dataset.id = '';
+                showModal('location');
+            });
+
+            locationList.addEventListener('click', e => {
+                const editBtn = e.target.closest('.edit-location-btn');
+                if (editBtn) {
+                    e.stopPropagation();
+                    const locId = editBtn.dataset.id;
+                    const location = state.locations.find(l => l.id === locId);
+                    document.getElementById('locationModalTitle').textContent = 'Edit Location';
+                    document.getElementById('locationName').value = location.name;
+                    document.getElementById('locationAddress').value = location.address;
+                    document.getElementById('deleteLocationBtn').classList.remove('hidden');
+                    document.querySelector('#saveLocationBtn').dataset.id = locId;
+                    document.querySelector('#deleteLocationBtn').dataset.id = locId;
+                    showModal('location');
+                }
+            });
+
+            document.getElementById('cancelLocationBtn').addEventListener('click', hideModals);
+            document.getElementById('saveLocationBtn').addEventListener('click', () => {
+                const id = document.querySelector('#saveLocationBtn').dataset.id;
+                const name = document.getElementById('locationName').value.trim();
+                const address = document.getElementById('locationAddress').value.trim();
+
+                if (!name || !address) {
+                    showAlert("Missing Info", "Please provide both a name and an address for the location.");
+                    return;
+                }
+
+                if (id) { // Editing
+                    const index = state.locations.findIndex(l => l.id === id);
+                    state.locations[index] = { ...state.locations[index], name, address };
+                } else { // Adding
+                    state.locations.push({ id: `loc_${Date.now()}`, name, address });
+                }
+                saveState();
+                renderLocations();
+                hideModals();
+            });
+
+            document.getElementById('deleteLocationBtn').addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                state.locations = state.locations.filter(l => l.id !== id);
+                if (state.selectedLocationId === id) {
+                    state.selectedLocationId = null;
+                }
+                saveState();
+                renderLocations();
+                hideModals();
+            });
+            
+            document.getElementById('useCurrentLocationBtn').addEventListener('click', () => {
+                if (!navigator.geolocation) {
+                    showAlert("Not Supported", "Geolocation is not supported by your browser.");
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById('locationAddress').value = data.display_name || `${latitude}, ${longitude}`;
+                        })
+                        .catch(() => {
+                           showAlert("Error", "Could not fetch address. Using coordinates instead.");
+                           document.getElementById('locationAddress').value = `${latitude}, ${longitude}`;
+                        });
+                    },
+                    () => showAlert("Error", "Unable to retrieve your location.")
+                );
+            });
+
+            // Duration Slider
+            durationSlider.addEventListener('input', (e) => {
+                state.visitDurationMinutes = DURATION_STEPS[parseInt(e.target.value)];
+                durationDisplay.textContent = formatDuration(state.visitDurationMinutes);
+                updateArrivedButtonState();
+            });
+
+            // Custom Long Press Implementation
+            function applyLongPress(element, callback) {
+                let timer;
+                let startX, startY;
+                const moveTolerance = 15; // Pixels allowed to move
+
+                const start = (e) => {
+                    if (element.disabled) return;
+                    
+                    if (e.type === 'touchstart') {
+                        startX = e.touches[0].clientX;
+                        startY = e.touches[0].clientY;
+                    }
+                    
+                    element.classList.add('pressing');
+                    timer = setTimeout(() => {
+                        callback();
+                        // Reset state on successful press
+                        clearTimeout(timer);
+                        timer = null;
+                        element.classList.remove('pressing');
+                    }, 2000);
+                };
+
+                const cancel = () => {
+                    clearTimeout(timer);
+                    timer = null;
+                    element.classList.remove('pressing');
+                };
+
+                const move = (e) => {
+                    if (e.type === 'touchmove' && timer) {
+                        const deltaX = Math.abs(e.touches[0].clientX - startX);
+                        const deltaY = Math.abs(e.touches[0].clientY - startY);
+
+                        if (deltaX > moveTolerance || deltaY > moveTolerance) {
+                            cancel();
+                        }
+                    }
+                };
+                
+                element.addEventListener('mousedown', start);
+                element.addEventListener('mouseup', cancel);
+                element.addEventListener('mouseleave', cancel);
+                
+                element.addEventListener('touchstart', start, { passive: true });
+                element.addEventListener('touchend', cancel);
+                element.addEventListener('touchcancel', cancel);
+                element.addEventListener('touchmove', move, { passive: false });
+            }
+
+            applyLongPress(arrivedBtn, handleArriveLongPress);
+            applyLongPress(document.getElementById('departBtn'), handleDepartLongPress);
+            applyLongPress(document.getElementById('extendBtn'), handleExtendLongPress);
+            applyLongPress(document.getElementById('iamSafeBtn'), handleSafeLongPress);
+        }
+
+        // --- Initialization ---
+        function init() {
+            loadState();
+            // Default to main page on load unless there's an active visit
+            if (state.activeVisit) {
+                enterLockedScreen();
+            } else {
+                navigate('main');
+                renderLocations();
+                updateArrivedButtonState();
+            }
+            initEventListeners();
+            // Ensure all pages are hidden initially except the active one
+            Object.keys(pages).forEach(key => {
+                if (!pages[key].classList.contains('active')) {
+                    pages[key].classList.add('hidden');
+                }
+            });
+        }
+
+        window.addEventListener('load', init);
+
+    </script>
+</body>
+</html>
