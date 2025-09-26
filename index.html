@@ -6,7 +6,7 @@
     <title>Lone Worker Safety</title>
     <!-- Favicon Links - Replace href with your logo's URL -->
     <link rel="icon" type="image/png" href="https://i.postimg.cc/dVmVg3Pn/favicon-logo-for-LWSApp.png">
-    <link rel="apple-touch-icon" href="https://https://i.postimg.cc/dVmVg3Pn/favicon-logo-for-LWSApp.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/dVmVg3Pn/favicon-logo-for-LWSApp.png">
     <!-- End Favicon Links -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -310,7 +310,7 @@ function doPost(e) {
       if (isClearingAlert && wasInAlert) {
           const workerName = currentValues[7];
           const locationName = currentValues[1];
-          const departureTime = new Date(data.ActualDepartureTime).toLocaleString();
+          const departureTime = new Date(data.ActualDepartureTime).toLocaleString('en-NZ', { timeZone: 'Pacific/Auckland' });
           const recipient = currentValues[11]; // Emergency Contact Email
           if (recipient) {
               const subject = `ALL CLEAR: Lone Worker ${workerName} is Safe`;
@@ -379,14 +379,14 @@ function checkOverdueWorkers() {
 
       let locationInfo;
       if (lastKnownGPS && gpsTimestamp) {
-          locationInfo = `Last known GPS location (at ${gpsTimestamp.toLocaleString()}): https://www.google.com/maps?q=${lastKnownGPS}`;
+          locationInfo = `Last known GPS location (at ${gpsTimestamp.toLocaleString('en-NZ', { timeZone: 'Pacific/Auckland' })}): https://www.google.com/maps?q=${lastKnownGPS}`;
       } else {
           locationInfo = `Location at arrival: https://www.google.com/maps?q=${encodeURIComponent(locationAddress)}`;
       }
 
       const emailBody = 
           `Worker: ${workerName} is visiting "${locationName}" and is now overdue.
-          Expected departure was: ${anticipatedDepartureTime.toLocaleString()}
+          Expected departure was: ${anticipatedDepartureTime.toLocaleString('en-NZ', { timeZone: 'Pacific/Auckland' })}
           Please call ${workerName} on ${workerPhone} to check their status.
           ${locationInfo}`;
       
@@ -782,7 +782,7 @@ function checkOverdueWorkers() {
             saveState();
             
             sendToGoogleSheet({
-                Date: now.toLocaleDateString(),
+                Date: now.toLocaleDateString('en-CA'),
                 LocationName: location.name,
                 LocationAddress: location.address,
                 ArrivalTime: state.activeVisit.arrivalTimeForSheet,
@@ -821,7 +821,7 @@ function checkOverdueWorkers() {
                 document.getElementById('countdownTimer').classList.add('text-red-500');
             }
             
-            document.getElementById('lockedAnticipatedTime').textContent = state.activeVisit.anticipatedDepartureTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
+            document.getElementById('lockedAnticipatedTime').textContent = new Date(state.activeVisit.anticipatedDepartureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'});
         }
 
         function depart() {
@@ -841,7 +841,7 @@ function checkOverdueWorkers() {
             sendToGoogleSheet({
                 ArrivalTime: state.activeVisit.arrivalTimeForSheet,
                 AnticipatedDepartureTime: state.activeVisit.anticipatedDepartureTime.toISOString(),
-                Notes: `Extended 10 mins at ${new Date().toLocaleTimeString()}`,
+                Notes: `Extended 10 mins at ${new Date().toISOString()}`,
             });
             updateLockedScreen();
         }
@@ -1144,4 +1144,4 @@ function checkOverdueWorkers() {
 
     </script>
 </body>
-</html>
+</html>l>
